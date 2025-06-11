@@ -267,7 +267,7 @@ class ChatGUI:
     def show_settings(self):
         settings_window = tk.Toplevel(self.root)
         settings_window.title("Settings")
-        settings_window.geometry("900x500")
+        settings_window.geometry("1200x600")
         settings_window.transient(self.root)
         settings_window.grab_set()
 
@@ -282,6 +282,43 @@ class ChatGUI:
         ttk.Label(api_frame, text="API Key:").grid(row=0, column=0, sticky=tk.W, pady=5)
         api_entry = ttk.Entry(api_frame, textvariable=self.api_key, show="*", width=40)
         api_entry.grid(row=0, column=1, pady=5, padx=5)
+        
+        # Check Credits Balance button
+        balance_label = ttk.Label(api_frame, text="", font=('Consolas', 11))
+        balance_label.grid(row=1, column=1, sticky=tk.W, pady=5, padx=5)
+        
+        def check_balance():
+            api_key = self.api_key.get().strip()
+            if not api_key:
+                messagebox.showerror("Error", "Please enter an API key")
+                return
+                
+            try:
+                import httpx
+                
+                headers = {
+                    "Authorization": f"Bearer {api_key}"
+                }
+                
+                balance_label.config(text="Checking...")
+                settings_window.update()
+                
+                with httpx.Client(timeout=30.0) as client:
+                    response = client.get("https://api.routstr.com/v1/wallet/info", headers=headers)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        balance = data.get('balance', 0)
+                        sats = balance / 1000
+                        balance_label.config(text=f"Balance: {balance:,} credits ({sats:,.3f} SAT)", foreground=theme['success'])
+                    else:
+                        balance_label.config(text=f"Error: {response.status_code}", foreground=theme['error'])
+                        
+            except Exception as e:
+                balance_label.config(text=f"Error: {str(e)[:50]}...", foreground=theme['error'])
+        
+        check_btn = ttk.Button(api_frame, text="Check Credits Balance", command=check_balance)
+        check_btn.grid(row=1, column=0, sticky=tk.W, pady=5)
 
         # Default Model section
         model_frame = ttk.LabelFrame(settings_window, text="Default Model", padding=10)
@@ -438,7 +475,8 @@ class ChatGUI:
                         data = response.json()
                         api_key_var.set(data.get('api_key', ''))
                         balance = data.get('balance', 0)
-                        balance_var.set(f"Balance: {balance:,} credits")
+                        sats = balance / 1000
+                        balance_var.set(f"Balance: {balance:,} credits ({sats:,.3f} SAT)")
                         
                         # Show result frame
                         result_frame.pack(fill=tk.X, padx=10, pady=10)
