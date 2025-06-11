@@ -274,13 +274,17 @@ class ChatGUI:
         # Apply theme to settings window
         theme = self.themes[self.theme.get()]
         settings_window.configure(bg=theme['bg'])
+        
+        # Create temporary variables for settings (don't modify the originals until save)
+        temp_api_key = tk.StringVar(value=self.api_key.get())
+        temp_default_model = tk.StringVar(value=self.default_model.get())
 
         # API Key section
         api_frame = ttk.LabelFrame(settings_window, text="API Configuration", padding=10)
         api_frame.pack(fill=tk.X, padx=10, pady=10)
 
         ttk.Label(api_frame, text="API Key:").grid(row=0, column=0, sticky=tk.W, pady=5)
-        api_entry = ttk.Entry(api_frame, textvariable=self.api_key, show="*", width=40)
+        api_entry = ttk.Entry(api_frame, textvariable=temp_api_key, show="*", width=40)
         api_entry.grid(row=0, column=1, pady=5, padx=5)
         
         # Check Credits Balance button
@@ -288,7 +292,7 @@ class ChatGUI:
         balance_label.grid(row=1, column=1, sticky=tk.W, pady=5, padx=5)
         
         def check_balance():
-            api_key = self.api_key.get().strip()
+            api_key = temp_api_key.get().strip()
             if not api_key:
                 messagebox.showerror("Error", "Please enter an API key")
                 return
@@ -325,7 +329,7 @@ class ChatGUI:
         model_frame.pack(fill=tk.X, padx=10, pady=10)
 
         ttk.Label(model_frame, text="Model:").grid(row=0, column=0, sticky=tk.W, pady=5)
-        model_combo = ttk.Combobox(model_frame, textvariable=self.default_model, width=37)
+        model_combo = ttk.Combobox(model_frame, textvariable=temp_default_model, width=37)
 
         # Flatten models for combobox
         all_models = []
@@ -365,6 +369,10 @@ class ChatGUI:
         button_frame.pack(fill=tk.X, padx=10, pady=10)
 
         def save_settings():
+            # Update the actual variables with the temporary values
+            self.api_key.set(temp_api_key.get())
+            self.default_model.set(temp_default_model.get())
+            
             # Save to .env file
             env_path = '.env'
             set_key(env_path, 'ROUTSTR_API_KEY', self.api_key.get())
