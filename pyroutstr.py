@@ -142,7 +142,9 @@ class ChatGUI:
             chat_frame,
             wrap=tk.WORD,
             state=tk.DISABLED,
-            font=('Consolas', self.font_size.get())
+            font=('Consolas', self.font_size.get()),
+            padx=10,
+            pady=10
         )
         self.chat_display.pack(fill=tk.BOTH, expand=True)
 
@@ -227,6 +229,7 @@ class ChatGUI:
         self.chat_display.tag_config('system', foreground=theme['warning'], font=('Consolas', size, 'italic'))
         self.chat_display.tag_config('error', foreground=theme['error'], font=('Consolas', size, 'italic'))
         self.chat_display.tag_config('tor', foreground=theme['tor'], font=('Consolas', size, 'bold'))
+        self.chat_display.tag_config('separator', foreground='#666666' if self.theme.get() == 'dark' else '#cccccc', font=('Consolas', size - 2))
 
     def apply_theme(self):
         theme = self.themes[self.theme.get()]
@@ -534,9 +537,12 @@ class ChatGUI:
 
     def stream_response(self):
         try:
-            # Add assistant label
+            # Add separator and spacing before assistant message
             self.chat_display.configure(state=tk.NORMAL)
-            self.chat_display.insert(tk.END, "\nAssistant: ", 'assistant')
+            self.chat_display.insert(tk.END, "\n")
+            self.chat_display.insert(tk.END, "─" * 80 + "\n", 'separator')
+            self.chat_display.insert(tk.END, "\n")
+            self.chat_display.insert(tk.END, "Assistant: ", 'assistant')
             self.chat_display.configure(state=tk.DISABLED)
             self.chat_display.see(tk.END)
 
@@ -570,6 +576,9 @@ class ChatGUI:
             # Update tokens
             self.total_tokens += last_chunk_tokens
             self.root.after(0, self.update_token_display, last_chunk_tokens)
+            
+            # Add extra line after assistant message
+            self.root.after(0, self.append_to_display, "\n")
 
             # Re-enable input
             self.root.after(0, self.toggle_input_state, True)
@@ -594,20 +603,37 @@ class ChatGUI:
 
     def add_message(self, sender, message, tag):
         self.chat_display.configure(state=tk.NORMAL)
+        
+        # Check if this is the first message to avoid separator at the beginning
+        if self.chat_display.get("1.0", "end-1c").strip():
+            # Add separator and spacing
+            self.chat_display.insert(tk.END, "\n")
+            self.chat_display.insert(tk.END, "─" * 80 + "\n", 'separator')
+            self.chat_display.insert(tk.END, "\n")
 
         # Add timestamp if tor
         if self.use_tor.get() and sender == "You":
-            self.chat_display.insert(tk.END, f"\n{sender} [TOR]: ", tag)
+            self.chat_display.insert(tk.END, f"{sender} [TOR]: ", tag)
         else:
-            self.chat_display.insert(tk.END, f"\n{sender}: ", tag)
+            self.chat_display.insert(tk.END, f"{sender}: ", tag)
 
         self.chat_display.insert(tk.END, message)
+        self.chat_display.insert(tk.END, "\n")  # Add extra line after message
         self.chat_display.configure(state=tk.DISABLED)
         self.chat_display.see(tk.END)
 
     def add_system_message(self, message, tag='system'):
         self.chat_display.configure(state=tk.NORMAL)
-        self.chat_display.insert(tk.END, f"\n[{message}]\n", tag)
+        
+        # Check if this is the first message to avoid separator at the beginning
+        if self.chat_display.get("1.0", "end-1c").strip():
+            # Add separator and spacing
+            self.chat_display.insert(tk.END, "\n")
+            self.chat_display.insert(tk.END, "─" * 80 + "\n", 'separator')
+            self.chat_display.insert(tk.END, "\n")
+        
+        self.chat_display.insert(tk.END, f"[{message}]\n", tag)
+        self.chat_display.insert(tk.END, "\n")  # Add extra line after message
         self.chat_display.configure(state=tk.DISABLED)
         self.chat_display.see(tk.END)
 
