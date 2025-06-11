@@ -44,7 +44,7 @@ POPULAR_MODELS = {
 class ChatGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("pyRoutstr v1.0")
+        self.root.title("pyRoutstr v1.0.1")
 
         # Start maximized
         self.root.state('zoomed') if sys.platform == 'win32' else self.root.attributes('-zoomed', True)
