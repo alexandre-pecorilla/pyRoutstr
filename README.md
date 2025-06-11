@@ -1,8 +1,10 @@
 # pyRoutstr v1.0
 
-A GUI client for Routstr - Access the best proprietary and open-source AI models with Bitcoin payments.
+Python desktop client for Routstr with Tor compatibility.
 
-✨ **Nothing beats reality** ✨
+🏆 Get access to the best AI models—including ChatGPT, Claude, Grok, and many others—for every budget.
+No personal info, no monthly subscriptions.
+Starts as low as 500 SATS (~50 cents). 🛑 100% censorship-resistant.
 
 ## Features
 
@@ -133,9 +135,21 @@ sudo dnf install python3 python3-pip python3-tkinter git
 
 ## Usage
 
-1. **First Run**: On first launch, go to **File → Settings** to configure your API key
-2. **Get API Key**: Sign up at [https://chat.routstr.com](https://chat.routstr.com) and create an API key
-3. **Start Chatting**: Click **File → New Conversation**, select a model, and start chatting!
+### 1. Get Your API Key
+Sign up with Nostr at [chat.routstr.com](https://chat.routstr.com)
+- Fund your wallet
+- Generate an API key and link some funds to it
+
+### 2. Configure the App
+On first launch:
+- Navigate to **File → Settings**
+- Enter your API key
+- Click Save
+
+### 3. Start Chatting
+- Click **File → New Conversation**
+- Select your preferred model
+- Start chatting!
 
 ## Troubleshooting
 
@@ -152,22 +166,10 @@ Ensure Tor is running on `localhost:9050`. You can verify with:
 curl --socks5 localhost:9050 https://check.torproject.org/
 ```
 
-## Requirements
-
-- Python 3.8+
-- Tkinter (GUI framework)
-- Internet connection
-- Routstr API key
-- Tor (optional, for anonymous routing)
-
 ## Author
 
-**Alex Pecorilla**  
+**Alex Pecorilla**
 Nostr: `npub1t9ak286ttdxf0njjf8nmvazhyvxx72xeazx7n2udcg0h5dy7e68sl8dw5g`
-
-## License
-
-[Add your license here]
 
 ---
 
