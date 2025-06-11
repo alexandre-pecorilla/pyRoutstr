@@ -112,6 +112,7 @@ class ChatGUI:
         file_menu.add_command(label="Save Conversation", command=self.save_conversation)
         file_menu.add_separator()
         file_menu.add_command(label="Settings", command=self.show_settings)
+        file_menu.add_command(label="Get Credits", command=self.show_get_credits)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.root.quit)
 
@@ -349,6 +350,130 @@ class ChatGUI:
 
         ttk.Button(button_frame, text="Save", command=save_settings).pack(side=tk.RIGHT, padx=5)
         ttk.Button(button_frame, text="Cancel", command=settings_window.destroy).pack(side=tk.RIGHT)
+
+    def show_get_credits(self):
+        """Show dialog for getting credits with cashu token"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Get Credits")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Apply theme
+        theme = self.themes[self.theme.get()]
+        dialog.configure(bg=theme['bg'])
+        
+        # Main frame to control padding and sizing
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Variables
+        api_key_var = tk.StringVar()
+        balance_var = tk.StringVar()
+        confirmed_var = tk.BooleanVar(value=False)
+        
+        # Token entry frame
+        token_frame = ttk.LabelFrame(main_frame, text="Enter Cashu Token", padding=10)
+        token_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        ttk.Label(token_frame, text="Cashu Token:").pack(anchor=tk.W)
+        token_entry = ttk.Entry(token_frame, show="*", width=50)
+        token_entry.pack(fill=tk.X, pady=5)
+        
+        # Result frame (initially hidden)
+        result_frame = ttk.LabelFrame(main_frame, text="Result", padding=10)
+        
+        # API Key display
+        api_frame = ttk.Frame(result_frame)
+        api_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(api_frame, text="API Key:").pack(side=tk.LEFT)
+        api_key_label = ttk.Entry(api_frame, textvariable=api_key_var, state='readonly', show="*", width=40)
+        api_key_label.pack(side=tk.LEFT, padx=5)
+        
+        def copy_api_key():
+            # Get the actual API key value
+            self.root.clipboard_clear()
+            self.root.clipboard_append(api_key_var.get())
+            copy_btn.config(text="Copied!")
+            self.root.after(2000, lambda: copy_btn.config(text="Copy"))
+        
+        copy_btn = ttk.Button(api_frame, text="Copy", command=copy_api_key)
+        copy_btn.pack(side=tk.LEFT, padx=5)
+        
+        # Balance display
+        balance_label = ttk.Label(result_frame, textvariable=balance_var, font=('Consolas', 11))
+        balance_label.pack(pady=5)
+        
+        # Confirmation checkbox
+        confirm_check = ttk.Checkbutton(
+            result_frame,
+            text="I have copied my API key and saved it securely",
+            variable=confirmed_var,
+            command=lambda: finish_btn.config(state='normal' if confirmed_var.get() else 'disabled')
+        )
+        confirm_check.pack(pady=10)
+        
+        # Buttons frame
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        def get_credits():
+            token = token_entry.get().strip()
+            if not token:
+                messagebox.showerror("Error", "Please enter a cashu token")
+                return
+            
+            try:
+                import httpx
+                
+                # Make API call
+                headers = {
+                    "Authorization": f"Bearer {token}"
+                }
+                
+                with httpx.Client(timeout=30.0) as client:
+                    response = client.get("https://api.routstr.com/v1/wallet/info", headers=headers)
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        api_key_var.set(data.get('api_key', ''))
+                        balance = data.get('balance', 0)
+                        balance_var.set(f"Balance: {balance:,} credits")
+                        
+                        # Show result frame
+                        result_frame.pack(fill=tk.X, padx=10, pady=10)
+                        
+                        # Disable get credits button
+                        get_btn.config(state='disabled')
+                        token_entry.config(state='disabled')
+                    else:
+                        messagebox.showerror("Error", f"Failed to get credits: {response.text}")
+                    
+            except ImportError:
+                messagebox.showerror("Error", "httpx is required. Install with: pip install httpx[socks]")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to get credits: {str(e)}")
+        
+        get_btn = ttk.Button(button_frame, text="Get Credits", command=get_credits)
+        get_btn.pack(side=tk.LEFT, padx=5)
+        
+        finish_btn = ttk.Button(button_frame, text="Finish", command=dialog.destroy, state='disabled')
+        finish_btn.pack(side=tk.RIGHT, padx=5)
+        
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT)
+        
+        # Update dialog to fit content
+        dialog.update_idletasks()
+        dialog.geometry("")  # Let the dialog size itself to fit content
+        
+        # Center the dialog
+        dialog.update_idletasks()
+        x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_width() // 2)
+        y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
+        dialog.geometry(f"+{x}+{y}")
+        
+        # Set minimum size
+        dialog.minsize(600, dialog.winfo_height())
 
     def new_conversation(self):
         if self.conversation_active and self.messages:
