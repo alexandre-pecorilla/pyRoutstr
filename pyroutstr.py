@@ -142,16 +142,12 @@ class ChatGUI:
             chat_frame,
             wrap=tk.WORD,
             state=tk.DISABLED,
-            font=('Consolas', 11)
+            font=('Consolas', self.font_size.get())
         )
         self.chat_display.pack(fill=tk.BOTH, expand=True)
 
-        # Configure tags for formatting
-        self.chat_display.tag_config('user', foreground='#0078d4', font=('Consolas', 11, 'bold'))
-        self.chat_display.tag_config('assistant', foreground='#4caf50', font=('Consolas', 11, 'bold'))
-        self.chat_display.tag_config('system', foreground='#ff9800', font=('Consolas', 11, 'italic'))
-        self.chat_display.tag_config('error', foreground='#f44336', font=('Consolas', 11, 'italic'))
-        self.chat_display.tag_config('tor', foreground='#9c27b0', font=('Consolas', 11, 'bold'))
+        # Configure tags for formatting (font size will be updated later)
+        self.configure_tags()
 
         # Input area
         input_frame = ttk.Frame(main_frame)
@@ -220,6 +216,18 @@ class ChatGUI:
                 activebackground=theme['button_bg']
             )
 
+    def configure_tags(self):
+        """Configure text tags with current font size"""
+        size = self.font_size.get()
+        theme = self.themes[self.theme.get()]
+        
+        # Configure tags with dynamic font size
+        self.chat_display.tag_config('user', foreground=theme['highlight'], font=('Consolas', size, 'bold'))
+        self.chat_display.tag_config('assistant', foreground=theme['success'], font=('Consolas', size, 'bold'))
+        self.chat_display.tag_config('system', foreground=theme['warning'], font=('Consolas', size, 'italic'))
+        self.chat_display.tag_config('error', foreground=theme['error'], font=('Consolas', size, 'italic'))
+        self.chat_display.tag_config('tor', foreground=theme['tor'], font=('Consolas', size, 'bold'))
+
     def apply_theme(self):
         theme = self.themes[self.theme.get()]
 
@@ -238,12 +246,8 @@ class ChatGUI:
             insertbackground=theme['fg']
         )
 
-        # Update tags
-        self.chat_display.tag_config('user', foreground=theme['highlight'])
-        self.chat_display.tag_config('assistant', foreground=theme['success'])
-        self.chat_display.tag_config('system', foreground=theme['warning'])
-        self.chat_display.tag_config('error', foreground=theme['error'])
-        self.chat_display.tag_config('tor', foreground=theme['tor'])
+        # Update tags with theme colors and current font size
+        self.configure_tags()
 
         # Configure ttk styles
         style = ttk.Style()
@@ -325,10 +329,12 @@ class ChatGUI:
             set_key(env_path, 'ROUTSTR_API_KEY', self.api_key.get())
             set_key(env_path, 'DEFAULT_MODEL', self.default_model.get())
 
-            # Update font
+            # Update font for chat display only (not input field)
             new_font = font.Font(family='Consolas', size=self.font_size.get())
             self.chat_display.configure(font=new_font)
-            self.input_text.configure(font=new_font)
+            
+            # Update tags to use new font size
+            self.configure_tags()
 
             # Update theme
             self.apply_theme()
