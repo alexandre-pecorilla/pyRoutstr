@@ -372,7 +372,7 @@ class ChatGUI:
         confirmed_var = tk.BooleanVar(value=False)
         
         # Token entry frame
-        token_frame = ttk.LabelFrame(main_frame, text="Enter Cashu Token", padding=10)
+        token_frame = ttk.LabelFrame(main_frame, text="Enter Cashu Token to get a new Routstr API key", padding=10)
         token_frame.pack(fill=tk.X, padx=10, pady=10)
         
         ttk.Label(token_frame, text="Cashu Token:").pack(anchor=tk.W)
