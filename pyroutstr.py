@@ -112,7 +112,7 @@ class ChatGUI:
         file_menu.add_command(label="Save Conversation", command=self.save_conversation)
         file_menu.add_separator()
         file_menu.add_command(label="Settings", command=self.show_settings)
-        file_menu.add_command(label="Get Credits", command=self.show_get_credits)
+        file_menu.add_command(label="Get New API Key", command=self.show_get_credits)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.root.quit)
 
@@ -399,7 +399,7 @@ class ChatGUI:
     def show_get_credits(self):
         """Show dialog for getting credits with cashu token"""
         dialog = tk.Toplevel(self.root)
-        dialog.title("Get Credits")
+        dialog.title("Get New API Key")
         dialog.transient(self.root)
         dialog.grab_set()
         
@@ -423,6 +423,14 @@ class ChatGUI:
         ttk.Label(token_frame, text="Cashu Token:").pack(anchor=tk.W)
         token_entry = ttk.Entry(token_frame, show="*", width=50)
         token_entry.pack(fill=tk.X, pady=5)
+        
+        # Warning message
+        warning_label = ttk.Label(
+            token_frame, 
+            text="⚠️ Warning: Cashu tokens over 5,000 SATS are not supported.\nGet your initial balance with \"Get New API Key\", then use \"Top Up\" to add more.",
+            foreground='orange'
+        )
+        warning_label.pack(anchor=tk.W, pady=(5, 0))
         
         # Result frame (initially hidden)
         result_frame = ttk.LabelFrame(main_frame, text="Result", padding=10)
@@ -500,7 +508,7 @@ class ChatGUI:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to get credits: {str(e)}")
         
-        get_btn = ttk.Button(button_frame, text="Get Credits", command=get_credits)
+        get_btn = ttk.Button(button_frame, text="Get New API Key", command=get_credits)
         get_btn.pack(side=tk.LEFT, padx=5)
         
         finish_btn = ttk.Button(button_frame, text="Finish", command=dialog.destroy, state='disabled')
