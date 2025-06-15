@@ -112,7 +112,7 @@ class ChatGUI:
         file_menu.add_command(label="Save Conversation", command=self.save_conversation)
         file_menu.add_separator()
         file_menu.add_command(label="Settings", command=self.show_settings)
-        file_menu.add_command(label="Get New API Key", command=self.show_get_credits)
+        file_menu.add_command(label="Get Credits", command=self.show_get_credits)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.root.quit)
 
@@ -415,6 +415,7 @@ class ChatGUI:
         api_key_var = tk.StringVar()
         balance_var = tk.StringVar()
         confirmed_var = tk.BooleanVar(value=False)
+        top_up_result_var = tk.StringVar()
         
         # Token entry frame
         token_frame = ttk.LabelFrame(main_frame, text="Enter Cashu Token to get a new Routstr API key", padding=10)
@@ -457,6 +458,10 @@ class ChatGUI:
         balance_label = ttk.Label(result_frame, textvariable=balance_var, font=('Consolas', 11))
         balance_label.pack(pady=5)
         
+        # Top up result display
+        top_up_label = ttk.Label(result_frame, textvariable=top_up_result_var, font=('Consolas', 11))
+        top_up_label.pack(pady=5)
+        
         # Confirmation checkbox
         confirm_check = ttk.Checkbutton(
             result_frame,
@@ -494,8 +499,15 @@ class ChatGUI:
                         sats = balance / 1000
                         balance_var.set(f"Balance: {balance:,} credits ({sats:,.3f} SAT)")
                         
-                        # Show result frame
+                        # Show result frame and ensure all elements are visible
                         result_frame.pack(fill=tk.X, padx=10, pady=10)
+                        api_frame.pack(fill=tk.X, pady=5)
+                        balance_label.pack(pady=5)
+                        top_up_label.pack(pady=5)
+                        confirm_check.pack(pady=10)
+                        
+                        # Clear any previous top up message
+                        top_up_result_var.set("")
                         
                         # Disable get credits button
                         get_btn.config(state='disabled')
@@ -537,10 +549,20 @@ class ChatGUI:
                     )
                     
                     if response.status_code == 200:
-                        # Response is just the amount credited
-                        amount_credited = response.json()
-                        sats = amount_credited / 1000
-                        messagebox.showinfo("Success", f"Top up successful!\n\nAdded {amount_credited:,} credits ({sats:,.3f} SAT)")
+                        # Show result frame if not already visible
+                        if not result_frame.winfo_ismapped():
+                            result_frame.pack(fill=tk.X, padx=10, pady=10)
+                        
+                        # Hide API key related fields for top up
+                        api_frame.pack_forget()
+                        balance_label.pack_forget()
+                        confirm_check.pack_forget()
+                        
+                        # Update success message
+                        top_up_result_var.set("✅ Top up successful!")
+                        
+                        # Enable finish button for top up
+                        finish_btn.config(state='normal')
                         
                         # Clear the token entry
                         token_entry.delete(0, tk.END)
