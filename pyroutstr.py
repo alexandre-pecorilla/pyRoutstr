@@ -44,7 +44,7 @@ POPULAR_MODELS = {
 class ChatGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("pyRoutstr v1.0.1")
+        self.root.title("pyRoutstr v1.0.2")
 
         # Start maximized
         self.root.state('zoomed') if sys.platform == 'win32' else self.root.attributes('-zoomed', True)
@@ -911,7 +911,7 @@ class ChatGUI:
         # Version
         version_label = tk.Label(
             main_frame,
-            text="v1.0",
+            text="v1.0.2",
             font=('Consolas', 16),
             bg=theme['bg'],
             fg=theme['fg']
