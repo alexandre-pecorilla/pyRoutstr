@@ -136,20 +136,26 @@ sudo dnf install python3 python3-pip python3-tkinter git
 ## Usage
 
 ### 1. Get Your API Key
-Sign up with Nostr at [chat.routstr.com](https://chat.routstr.com)
-- Fund your wallet
-- Generate an API key and link some funds to it
+- Navigate to **File → Get Credits**
+- Enter a Cashu token
+- Click **Get New API Key**
+- Copy your API key and save it securely
 
 ### 2. Configure the App
-On first launch:
 - Navigate to **File → Settings**
-- Enter your API key
+- Paste your API key
 - Click Save
 
 ### 3. Start Chatting
 - Click **File → New Conversation**
 - Select your preferred model
 - Start chatting!
+
+### 4. Add More Credits
+- Navigate to **File → Get Credits**
+- Enter another Cashu token
+- Click **Top Up**
+- Repeat as needed to increase your balance
 
 ## Troubleshooting
 
