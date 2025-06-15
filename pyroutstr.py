@@ -118,7 +118,6 @@ class ChatGUI:
 
         help_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Help", menu=help_menu)
-        help_menu.add_command(label="How to Use", command=self.show_how_to_use)
         help_menu.add_command(label="About", command=self.show_about)
 
         # Main container
@@ -313,8 +312,7 @@ class ChatGUI:
                     if response.status_code == 200:
                         data = response.json()
                         balance = data.get('balance', 0)
-                        sats = balance / 1000
-                        balance_label.config(text=f"Balance: {balance:,} credits ({sats:,.3f} SAT)", foreground=theme['success'])
+                        balance_label.config(text=f"Balance: {balance:,} credits", foreground=theme['success'])
                     else:
                         balance_label.config(text=f"Error: {response.status_code}", foreground=theme['error'])
                         
@@ -496,8 +494,7 @@ class ChatGUI:
                         data = response.json()
                         api_key_var.set(data.get('api_key', ''))
                         balance = data.get('balance', 0)
-                        sats = balance / 1000
-                        balance_var.set(f"Balance: {balance:,} credits ({sats:,.3f} SAT)")
+                        balance_var.set(f"Balance: {balance:,} credits")
                         
                         # Show result frame and ensure all elements are visible
                         result_frame.pack(fill=tk.X, padx=10, pady=10)
@@ -884,106 +881,6 @@ class ChatGUI:
 
     def clear_input(self):
         self.input_text.delete(1.0, tk.END)
-
-    def show_how_to_use(self):
-        howto_window = tk.Toplevel(self.root)
-        howto_window.title("How to Use pyRoutstr")
-        howto_window.geometry("1400x1200")
-        howto_window.transient(self.root)
-        howto_window.grab_set()
-        howto_window.resizable(False, False)
-
-        # Apply theme
-        theme = self.themes[self.theme.get()]
-        howto_window.configure(bg=theme['bg'])
-
-        # Main container with padding
-        main_frame = tk.Frame(howto_window, bg=theme['bg'])
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=60, pady=40)
-
-        # Title
-        title_label = tk.Label(
-            main_frame,
-            text="How to Use pyRoutstr",
-            font=('Consolas', 28, 'bold'),
-            bg=theme['bg'],
-            fg=theme['highlight']
-        )
-        title_label.pack(pady=(0, 40))
-
-        # Steps container
-        steps_frame = tk.Frame(main_frame, bg=theme['bg'])
-        steps_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Steps
-        steps = [
-            ("1.", "Sign up on Routstr using Nostr:", "https://chat.routstr.com"),
-            ("2.", "Go to Settings > Wallet, and deposit funds via Lightning or Cashu.", None),
-            ("3.", "In Settings > API Keys, create a new key and link some funds to it.", None),
-            ("4.", "Copy the API key into pyRoutstr's settings.", None),
-            ("5.", "Start a conversation by selecting a model from the defaults or from", "https://www.routstr.com/models"),
-            ("6.", "Optional: Enable Tor routing to protect your IP (ensure Tor is running on localhost:9050).", None)
-        ]
-
-        for step_num, step_text, link_url in steps:
-            step_frame = tk.Frame(steps_frame, bg=theme['bg'])
-            step_frame.pack(anchor=tk.W, pady=15, fill=tk.X)
-
-            # Step number with circle background
-            num_frame = tk.Frame(step_frame, bg=theme['highlight'], width=40, height=40)
-            num_frame.pack(side=tk.LEFT, anchor=tk.N, padx=(0, 20))
-            num_frame.pack_propagate(False)
-
-            num_label = tk.Label(
-                num_frame,
-                text=step_num[0],  # Just the number
-                font=('Consolas', 16, 'bold'),
-                bg=theme['highlight'],
-                fg='white'
-            )
-            num_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-
-            # Step content frame
-            content_frame = tk.Frame(step_frame, bg=theme['bg'])
-            content_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-            # Step text
-            text_label = tk.Label(
-                content_frame,
-                text=step_text,
-                font=('Consolas', 14),
-                bg=theme['bg'],
-                fg=theme['fg'],
-                justify=tk.LEFT,
-                wraplength=800
-            )
-            text_label.pack(anchor=tk.W)
-
-            # Add link if provided
-            if link_url:
-                link_label = tk.Label(
-                    content_frame,
-                    text=link_url,
-                    font=('Consolas', 13, 'underline'),
-                    bg=theme['bg'],
-                    fg=theme['highlight'],
-                    cursor="hand2"
-                )
-                link_label.pack(anchor=tk.W, pady=(5, 0))
-                link_label.bind("<Button-1>", lambda e, url=link_url: self.open_url(url))
-
-        # Close button
-        close_btn = tk.Button(
-            howto_window,
-            text="Got it!",
-            font=('Consolas', 12, 'bold'),
-            bg=theme['button_bg'],
-            fg=theme['button_fg'],
-            activebackground=theme['highlight'],
-            width=15,
-            command=howto_window.destroy
-        )
-        close_btn.pack(pady=30)
 
     def show_about(self):
         about_window = tk.Toplevel(self.root)
