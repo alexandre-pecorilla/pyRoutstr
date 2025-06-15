@@ -511,6 +511,50 @@ class ChatGUI:
         get_btn = ttk.Button(button_frame, text="Get New API Key", command=get_credits)
         get_btn.pack(side=tk.LEFT, padx=5)
         
+        def top_up():
+            # Check if API key exists
+            if not self.api_key.get():
+                messagebox.showerror("Error", "No API key found. Please use 'Get New API Key' first and add it to settings.")
+                return
+            
+            token = token_entry.get().strip()
+            if not token:
+                messagebox.showerror("Error", "Please enter a cashu token")
+                return
+            
+            try:
+                import httpx
+                
+                # Make API call
+                headers = {
+                    "Authorization": f"Bearer {self.api_key.get()}"
+                }
+                
+                with httpx.Client(timeout=30.0) as client:
+                    response = client.post(
+                        f"https://api.routstr.com/v1/wallet/topup?cashu_token={token}", 
+                        headers=headers
+                    )
+                    
+                    if response.status_code == 200:
+                        # Response is just the amount credited
+                        amount_credited = response.json()
+                        sats = amount_credited / 1000
+                        messagebox.showinfo("Success", f"Top up successful!\n\nAdded {amount_credited:,} credits ({sats:,.3f} SAT)")
+                        
+                        # Clear the token entry
+                        token_entry.delete(0, tk.END)
+                    else:
+                        messagebox.showerror("Error", f"Failed to top up: {response.text}")
+                    
+            except ImportError:
+                messagebox.showerror("Error", "httpx is required. Install with: pip install httpx[socks]")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to top up: {str(e)}")
+        
+        top_up_btn = ttk.Button(button_frame, text="Top Up", command=top_up)
+        top_up_btn.pack(side=tk.LEFT, padx=5)
+        
         finish_btn = ttk.Button(button_frame, text="Finish", command=dialog.destroy, state='disabled')
         finish_btn.pack(side=tk.RIGHT, padx=5)
         
