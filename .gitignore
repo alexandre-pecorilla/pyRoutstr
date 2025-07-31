@@ -197,5 +197,4 @@ cython_debug/
 CLAUDE.md
 for_claude/
 
-venv/
 .idea/
