@@ -47,7 +47,17 @@ class ChatGUI:
         self.root.title("pyRoutstr v1.0.2")
 
         # Start maximized
-        self.root.state('zoomed') if sys.platform == 'win32' else self.root.attributes('-zoomed', True)
+        if sys.platform == 'win32':
+            self.root.state('zoomed')
+        elif sys.platform == 'darwin':
+            # macOS doesn't support -zoomed, use screen dimensions
+            self.root.update()
+            screen_width = self.root.winfo_screenwidth()
+            screen_height = self.root.winfo_screenheight()
+            self.root.geometry(f"{screen_width}x{screen_height}+0+0")
+        else:
+            # Linux
+            self.root.attributes('-zoomed', True)
 
         # Variables
         self.api_key = tk.StringVar(value=os.getenv('ROUTSTR_API_KEY', ''))
