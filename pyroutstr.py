@@ -1199,6 +1199,7 @@ def main():
         print("Install with: pip install httpx[socks]")
 
     root = tk.Tk()
+    root.tk.call('tk', 'scaling', float(os.getenv('UI_SCALING', '1')))
     app = ChatGUI(root)
     root.mainloop()
 
